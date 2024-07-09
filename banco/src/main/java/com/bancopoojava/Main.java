@@ -5,135 +5,77 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Banco banco = new Banco();
-
+        Banco banco = new Banco("Banco Digital");
+        
+        System.out.println("Bem-vindo ao Banco Digital!");
+        
+        System.out.print("Digite o nome do cliente: ");
+        String nomeCliente = scanner.nextLine();
+        Cliente cliente = new Cliente(nomeCliente);
+        
+        banco.adicionarCliente(cliente);
+        
+        Conta conta = null;
+        
         while (true) {
-            System.out.println("1. Criar Conta Corrente");
-            System.out.println("2. Criar Conta Poupança");
-            System.out.println("3. Depositar");
-            System.out.println("4. Sacar");
-            System.out.println("5. Transferir");
-            System.out.println("6. Mostrar Contas");
-            System.out.println("0. Sair");
-
+            System.out.println("\nEscolha o tipo de conta para criar:");
+            System.out.println("1. Conta Corrente");
+            System.out.println("2. Conta Poupança");
+            System.out.print("Opção: ");
+            int tipoConta = scanner.nextInt();
+            
+            if (tipoConta == 1) {
+                conta = new ContaCorrente(cliente);
+                break;
+            } else if (tipoConta == 2) {
+                conta = new ContaPoupanca(cliente);
+                break;
+            } else {
+                System.out.println("Opção inválida! Tente novamente.");
+            }
+        }
+        
+        banco.adicionarConta(conta);
+        
+        while (true) {
+            System.out.println("\nEscolha a operação:");
+            System.out.println("1. Depositar");
+            System.out.println("2. Sacar");
+            System.out.println("3. Transferir");
+            System.out.println("4. Sair");
+            System.out.print("Opção: ");
             int opcao = scanner.nextInt();
-            scanner.nextLine(); // Consome a nova linha
-
+            
             switch (opcao) {
                 case 1:
-                    criarConta(scanner, banco, true);
+                    System.out.print("Digite o valor do depósito: ");
+                    double valorDeposito = scanner.nextDouble();
+                    conta.depositar(valorDeposito);
                     break;
                 case 2:
-                    criarConta(scanner, banco, false);
+                    System.out.print("Digite o valor do saque: ");
+                    double valorSaque = scanner.nextDouble();
+                    conta.sacar(valorSaque);
                     break;
                 case 3:
-                    realizarDeposito(scanner, banco);
+                    System.out.print("Digite o número da conta destino: ");
+                    int numeroContaDestino = scanner.nextInt();
+                    Conta contaDestino = banco.getConta(numeroContaDestino);
+                    if (contaDestino == null) {
+                        System.out.println("Conta destino não encontrada!");
+                        break;
+                    }
+                    System.out.print("Digite o valor da transferência: ");
+                    double valorTransferencia = scanner.nextDouble();
+                    conta.transferir(valorTransferencia, contaDestino);
                     break;
                 case 4:
-                    realizarSaque(scanner, banco);
-                    break;
-                case 5:
-                    realizarTransferencia(scanner, banco);
-                    break;
-                case 6:
-                    mostrarContas(banco);
-                    break;
-                case 0:
-                    System.out.println("Saindo...");
+                    System.out.println("Obrigado por usar o Banco Digital!");
                     scanner.close();
                     return;
                 default:
-                    System.out.println("Opção inválida");
-                    break;
+                    System.out.println("Opção inválida! Tente novamente.");
             }
-        }
-    }
-
-    private static void criarConta(Scanner scanner, Banco banco, boolean isCorrente) {
-        System.out.println("Digite o nome do cliente:");
-        String nome = scanner.nextLine();
-        Cliente cliente = new Cliente(nome);
-        Conta conta;
-
-        if (isCorrente) {
-            conta = new ContaCorrente(cliente, 0.0);
-        } else {
-            conta = new ContaPoupanca(cliente, 0.0);
-        }
-
-        banco.adicionarConta(conta);
-        System.out.println("Conta criada: " + conta);
-    }
-
-    private static void realizarDeposito(Scanner scanner, Banco banco) {
-        System.out.println("Digite o número da conta:");
-        String numeroConta = scanner.nextLine();
-        Conta conta = banco.buscarContaPorNumero(numeroConta);
-
-        if (conta == null) {
-            System.out.println("Conta não encontrada.");
-            return;
-        }
-
-        System.out.println("Digite o valor do depósito:");
-        double valor = scanner.nextDouble();
-        scanner.nextLine(); // Consome a nova linha
-
-        conta.depositar(valor);
-        System.out.println("Depósito realizado: " + conta);
-    }
-
-    private static void realizarSaque(Scanner scanner, Banco banco) {
-        System.out.println("Digite o número da conta:");
-        String numeroConta = scanner.nextLine();
-        Conta conta = banco.buscarContaPorNumero(numeroConta);
-
-        if (conta == null) {
-            System.out.println("Conta não encontrada.");
-            return;
-        }
-
-        System.out.println("Digite o valor do saque:");
-        double valor = scanner.nextDouble();
-        scanner.nextLine(); // Consome a nova linha
-
-        conta.sacar(valor);
-        System.out.println("Saque realizado: " + conta);
-    }
-
-    private static void realizarTransferencia(Scanner scanner, Banco banco) {
-        System.out.println("Digite o número da conta de origem:");
-        String numeroContaOrigem = scanner.nextLine();
-        Conta contaOrigem = banco.buscarContaPorNumero(numeroContaOrigem);
-
-        if (contaOrigem == null) {
-            System.out.println("Conta de origem não encontrada.");
-            return;
-        }
-
-        System.out.println("Digite o número da conta de destino:");
-        String numeroContaDestino = scanner.nextLine();
-        Conta contaDestino = banco.buscarContaPorNumero(numeroContaDestino);
-
-        if (contaDestino == null) {
-            System.out.println("Conta de destino não encontrada.");
-            return;
-        }
-
-        System.out.println("Digite o valor da transferência:");
-        double valor = scanner.nextDouble();
-        scanner.nextLine(); // Consome a nova linha
-
-        contaOrigem.transferir(contaDestino, valor);
-        System.out.println("Transferência realizada: ");
-        System.out.println("Origem: " + contaOrigem);
-        System.out.println("Destino: " + contaDestino);
-    }
-
-    private static void mostrarContas(Banco banco) {
-        System.out.println("Contas no banco:");
-        for (Conta conta : banco.getContas()) {
-            System.out.println(conta);
         }
     }
 }
